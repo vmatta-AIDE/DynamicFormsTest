@@ -43,10 +43,10 @@ responses:
   - text: Bye
   utter_iamabot:
   - text: I am a bot, powered by Rasa.
-  # utter_ask_first_name:
-  # - text: What is your first name?
-  # utter_ask_last_name:
-  # - text: What is your last name?
+  utter_ask_first_name:
+   - text: What is your first name?
+  utter_ask_last_name:
+   - text: What is your last name?
   utter_submit:
   - text: Ok. Thanks!
   utter_slots_values:
