@@ -36,7 +36,7 @@ class ValidateNameForm(FormValidationAction):
         first_name = tracker.latest_message.get("text")
 
         logger.info('extracted first name {}'.format(first_name))
-        return {"first_ame": first_name}
+        return {"first_name": first_name}
 
     def validate_first_name(
         self,
