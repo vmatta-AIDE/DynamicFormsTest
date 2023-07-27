@@ -19,6 +19,8 @@ nlu:
   examples: |
     - good afternoon
     - cu
+    - see u
+    - 30 you
     - good by
     - cee you later
     - good night
@@ -91,3 +93,4 @@ nlu:
     - give name
     - you need to know my name
     - do you know my name?
+    - what is your name?
