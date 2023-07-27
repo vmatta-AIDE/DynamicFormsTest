@@ -30,7 +30,6 @@ slots:
       - type: custom
   form_state:
     type: any
-    influence_conversation: true
     mappings:
       - type: custom
 
