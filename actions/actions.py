@@ -122,6 +122,7 @@ class ValidateNameForm(FormValidationAction):
         tracker: Tracker,
         domain: DomainDict,
     ) -> Dict[Text, Any]:
+        logger.info('inside validate_first_name')
         """Validate `first_name` value."""
         if not self.ask_first_name:
             dispatcher.utter_message("please provide first name")
@@ -150,6 +151,7 @@ class ValidateNameForm(FormValidationAction):
         domain: DomainDict,
     ) -> Dict[Text, Any]:
         """Validate `last_name` value."""
+        logger.info('inside validate_last_name')
         if not self.ask_last_name:
             dispatcher.utter_message("please provide last name")
             self.ask_last_name = False
