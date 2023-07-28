@@ -151,7 +151,7 @@ class ValidateNameForm(FormValidationAction):
     ) -> Dict[Text, Any]:
         """Validate `last_name` value."""
         if not self.ask_last_name:
-            dispatcher.utter_message("please provide first name")
+            dispatcher.utter_message("please provide last name")
             self.ask_last_name = False
             return {"last_name": None}
 
