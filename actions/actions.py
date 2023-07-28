@@ -3,7 +3,7 @@ from typing import Text, List, Any, Dict
 from rasa_sdk import Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
-from rasa_sdk.forms import FormValidationAction
+from rasa_sdk.forms import FormValidationAction, Action
 from rasa_sdk.events import EventType, SlotSet
 
 import logging
@@ -13,6 +13,28 @@ logger = logging.getLogger(__name__)
 #     return "".join([c for c in name if c.isalpha()])
 
 SLOTS = ["first_name", "last_name"]
+
+class AskForFirstName(Action):
+    def name(self) -> Text:
+        return "action_ask_first_name"
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        dispatcher.utter_message(text="What is your first name?")
+        return []
+
+
+class AskForLastName(Action):
+    def name(self) -> Text:
+        return "action_ask_last_name"
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        dispatcher.utter_message(text="What is your last name?")
+        return []
+
 class ValidateNameForm(FormValidationAction):
     def name(self) -> Text:
         return "validate_name_form"
@@ -89,7 +111,9 @@ class ValidateNameForm(FormValidationAction):
         first_name = tracker.latest_message.get("text")
 
         logger.info('extracted first name {}'.format(first_name))
-        return {"first_name": first_name}
+        if len(first_name.split()) < 2:
+            return {"first_name": first_name}
+        return {"first_name": None}
 
     def validate_first_name(
         self,
@@ -115,7 +139,8 @@ class ValidateNameForm(FormValidationAction):
         last_name = tracker.latest_message.get("text")
 
         logger.info('extracted last name {}'.format(last_name))
-        return {"last_name": last_name}
+        if len(last_name.split()) < 2:
+            return {"last_name": last_name}
 
     def validate_last_name(
         self,
@@ -129,11 +154,11 @@ class ValidateNameForm(FormValidationAction):
             dispatcher.utter_message("please provide first name")
             self.ask_last_name = False
             return {"last_name": None}
-    
+
         return {"last_name": slot_value}
 
 def next_slot_to_ask(form_state):
     for s in SLOTS:
-        if not form_state.get(s[0]):
-            return s[0]
+        if not form_state.get(s):
+            return s
     return None

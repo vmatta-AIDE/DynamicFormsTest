@@ -61,3 +61,5 @@ actions:
 - utter_slots_values
 - utter_submit
 - validate_name_form
+- action_ask_first_name
+- action_ask_last_name
