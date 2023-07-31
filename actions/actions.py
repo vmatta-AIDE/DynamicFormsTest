@@ -12,7 +12,9 @@ logger = logging.getLogger(__name__)
 # def clean_name(name):
 #     return "".join([c for c in name if c.isalpha()])
 
-SLOTS = ["first_name", "last_name"]
+
+SLOTS = [('first_name', 'first name'),
+         ('last_name', 'last name')]
 
 class AskForFirstName(Action):
     def name(self) -> Text:
@@ -75,6 +77,7 @@ class ValidateNameForm(FormValidationAction):
             logger.info('................user just entering the form')
 
             ask_slot = next_slot_to_ask(self.form_state)
+            self.form_state['asking_slots'] = [ask_slot]
             if ask_slot is None:
                 return []
             else:
@@ -161,6 +164,6 @@ class ValidateNameForm(FormValidationAction):
 
 def next_slot_to_ask(form_state):
     for s in SLOTS:
-        if not form_state.get(s):
-            return s
+        if not form_state.get(s[0]):
+            return s[0]
     return None
