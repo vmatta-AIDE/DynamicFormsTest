@@ -52,13 +52,13 @@ class ValidateNameForm(FormValidationAction):
         self.form_state = tracker.slots.get('form_state', {})
         if self.form_state is None:
             self.form_state = {}
-
         if 'asking_slots' not in self.form_state:
-            self.ask_last_name = True
-            self.ask_first_name= True
+            self.asked_last_name = False
+            self.asked_first_name= False
+            self.count = 0
         # original form implementation for the run()
         events = await super(ValidateNameForm, self).run(dispatcher, tracker, domain)
-
+        events = events + [SlotSet(key='form_state', value=self.form_state)]
         # persist the stats into slots
         logger.info('.....save form_state back to slot: {}'.format(self.form_state))    
 
@@ -88,6 +88,12 @@ class ValidateNameForm(FormValidationAction):
             # validation method determine it's time to get out
             return []
 
+        elif self.form_state.get('asking_slots') and self.asked_first_name and not self.asked_last_name and self.count !=2:
+            return ['first_name']
+        
+        elif self.form_state.get('asking_slots') and self.asked_first_name and not self.asked_last_name and self.count ==2:
+            return ['last_name']
+
         elif self.form_state.get('asking_slots'):
             # The from stats has slot names in 'asking_slots' field
             # if the the first one is an empty slot, continue ask user
@@ -95,7 +101,6 @@ class ValidateNameForm(FormValidationAction):
             slots_check = self.form_state['asking_slots']
             logger.info('checking slot {}'.format(slots_check))
             empty_ones = list(filter(lambda s: tracker.get_slot(s) is None, slots_check))
-
             if len(empty_ones) == 0:
                 self.form_state['asking_slots'] = []
                 logger.info('End the form!!!!')
@@ -106,7 +111,7 @@ class ValidateNameForm(FormValidationAction):
             return []
 
 
-    async def extract_first_name(
+    def extract_first_name(
                 self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
         ) -> Dict[Text, Any]:
         logger.info('inside extract_first_name')
@@ -114,9 +119,13 @@ class ValidateNameForm(FormValidationAction):
         first_name = tracker.latest_message.get("text")
 
         logger.info('extracted first name {}'.format(first_name))
-        if len(first_name.split()) < 2:
-            return {"first_name": first_name}
-        return {"first_name": None}
+        if not self.asked_first_name:
+            dispatcher.utter_message("please provide first name")
+            # self.form_state['asking_slots']=['first_ name']
+            self.asked_first_name = True
+            return {"first_name": None}
+
+        return {"first_name": first_name}
 
     def validate_first_name(
         self,
@@ -127,14 +136,10 @@ class ValidateNameForm(FormValidationAction):
     ) -> Dict[Text, Any]:
         logger.info('inside validate_first_name')
         """Validate `first_name` value."""
-        if not self.ask_first_name:
-            dispatcher.utter_message("please provide first name")
-            self.ask_first_name = False
-            return {"first_name": None}
-        # If the name is super short, it might be wrong.
+        self.count = self.count + 1
         return {"first_name": slot_value}
 
-    async def extract_last_name(
+    def extract_last_name(
                 self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
         ) -> Dict[Text, Any]:
 
@@ -143,8 +148,7 @@ class ValidateNameForm(FormValidationAction):
         last_name = tracker.latest_message.get("text")
 
         logger.info('extracted last name {}'.format(last_name))
-        if len(last_name.split()) < 2:
-            return {"last_name": last_name}
+        return {"last_name": last_name}
 
     def validate_last_name(
         self,
@@ -155,10 +159,7 @@ class ValidateNameForm(FormValidationAction):
     ) -> Dict[Text, Any]:
         """Validate `last_name` value."""
         logger.info('inside validate_last_name')
-        if not self.ask_last_name:
-            dispatcher.utter_message("please provide last name")
-            self.ask_last_name = False
-            return {"last_name": None}
+        self.count =+ 1
 
         return {"last_name": slot_value}
 
