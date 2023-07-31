@@ -120,7 +120,6 @@ class ValidateNameForm(FormValidationAction):
 
         logger.info('extracted first name {}'.format(first_name))
         if not self.asked_first_name:
-            dispatcher.utter_message("please provide first name")
             # self.form_state['asking_slots']=['first_ name']
             self.asked_first_name = True
             return {"first_name": None}
